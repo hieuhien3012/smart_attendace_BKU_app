@@ -16,52 +16,33 @@ import {connect} from 'react-redux';
 import * as action from '../../actions/actionMain'
 
 import axios from 'axios'
+
 import Beacons from 'react-native-beacons-manager';
-import BackgroundTask from 'react-native-background-task';
+
+// import BackgroundTask from 'react-native-background-task';
+import BackgroundTimer from 'react-native-background-timer';
 
 import Header from '../../component/header'
 
 var qs = require('qs');
-const timer = require('react-native-timer');
-// Define a region which can be identifier + uuid,
-// identifier + uuid + major or identifier + uuid + major + minor
-// (minor and major properties are numbers)
+
 const region = {
     identifier: 'Estimotes',
     uuid: 'B9407F30-F5F8-466E-AFF9-25556B57FE6D'
 };
 
 var check = "out";
-BackgroundTask.define(() => {
-    // if (check == "in") {
-        const unsubsription = DeviceEventEmitter.addListener('beaconsDidRange',
-            (data) => {
-                const subscription = DeviceEventEmitter.removeAllListeners('beaconsDidRange')
-                var req = {
-                    student_ID: this.state.student_ID,
-                    major: data.beacons[0].major,
-                    minor: data.beacons[0].minor,
-                    rssi: data.beacons[0].rssi,
-                    accuracy: data.beacons[0].accuracy
-                }
-                this.setState({
-                    rssi:data.beacons[0].rssi
-                })
-                if(data.beacons[0].rssi < 0){
-                    var self = this
-                    axios.post('http://cretatech.com:8800/app',qs.stringify(req))
-                    .then(function (response) {
-                        console.log(response.data.room)
-                        self.setState({
-                            room: response.data.room
-                        })
-                    })
-                }
-                BackgroundTask.finish()
-		});
-    // }
-    // BackgroundTask.finish()
-})
+
+BackgroundTimer.runBackgroundTimer(() => {
+    var req = {
+        rssi:'12321421421321'
+    }
+
+    axios.post('http://cretatech.com:8800/rssi',qs.stringify(req))
+    // console.log("backgroundTimer");
+},5000);
+
+// BackgroundTimer.stopBackgroundTimer();
 
 class MainScreen extends Component {
     constructor(props) {
@@ -73,18 +54,17 @@ class MainScreen extends Component {
             student_ID  :   this.props.navigation.state.params.student_ID,
             room        :   '',
             teacher     :   '',
-            time        :   '0',
-            room        :   '0',
-            rssi        :   '0',   
+            time        :   '',
+            room        :   '',
+            rssi        :   '',   
         }
     }
     
     subscribe = () => {
-        // DeviceEventEmitter.removeAllListeners('beaconsDidRange')
-        // Listen for beacon changes
-		const unsubsription = DeviceEventEmitter.addListener('beaconsDidRange',
+        // Listen for beacons
+        const unsubscription = DeviceEventEmitter.removeAllListeners('beaconsDidRange')
+		const subsription = DeviceEventEmitter.addListener('beaconsDidRange',
 			(data) => {
-                const subscription = DeviceEventEmitter.removeAllListeners('beaconsDidRange')
                 var req = {
                     student_ID: this.state.student_ID,
                     major: data.beacons[0].major,
@@ -92,16 +72,15 @@ class MainScreen extends Component {
                     rssi: data.beacons[0].rssi,
                     accuracy: data.beacons[0].accuracy
                 }
-                this.setState({
-                    rssi:data.beacons[0].rssi
-                })
                 if(data.beacons[0].rssi < 0){
                     var self = this
                     axios.post('http://cretatech.com:8800/app',qs.stringify(req))
                     .then(function (response) {
                         self.setState({
-                            room: response.data.room
+                            room: response.data.room,
+                            rssi:data.beacons[0].rssi
                         })
+                        const unsubscription = DeviceEventEmitter.removeAllListeners('beaconsDidRange')
                     })
                 }
 		});
@@ -117,21 +96,18 @@ class MainScreen extends Component {
                 time : '' + date.getHours() + ':' + date.getMinutes()
             })
             this.subscribe()
-            this.intervalId  = setInterval(this.subscribe, 2000);
+            this.intervalId  = setInterval(this.subscribe, 3000);
         } else if (state == "OFF") {
+            var date = new Date()
             check = "out"
-            this.setState({time:'OFF'})
+            this.setState({
+                room: '',
+                time:'' + date.getHours() + ':' + date.getMinutes(),
+                rssi:''
+            })
             clearInterval(this.intervalId);
         }
     }
-    
-    unsubsribe = () => {
-		DeviceEventEmitter.removeAllListeners('beaconsDidRange')
-		this.setState({
-			beacons : ''
-		})
-		console.log('stopped ranging')
-	}
     
     onSwipeRight(gestureState) {
         this.props.onOrOffAnimating(!this.props.animating)
@@ -276,17 +252,15 @@ class MainScreen extends Component {
     }
 
 	componentDidMount() {
+        //BLE set-up
 		Beacons.requestWhenInUseAuthorization();
 		Beacons.requestAlwaysAuthorization();
 		Beacons.startMonitoringForRegion(region);
 		Beacons.startRangingBeaconsInRegion(region);
 		Beacons.startUpdatingLocation();
         Beacons.shouldDropEmptyRanges(true);
-        BackgroundTask.schedule()
-        this.checkStatus()
-        this.intervalId  = null
 
-		this.regionDidExitEvent = DeviceEventEmitter.addListener(
+        this.regionDidExitEvent = DeviceEventEmitter.addListener(
 			'regionDidExit',
 			(region) => {
 				this.setState({
@@ -297,11 +271,8 @@ class MainScreen extends Component {
 				})
 			}
 		);
-    }
-
-    async checkStatus() {
-        const status = await BackgroundTask.statusAsync()
-        console.log("Background task available status: " + status.available)
+        //------------------------------------
+        // this.intervalId  = null
     }
     
 }
