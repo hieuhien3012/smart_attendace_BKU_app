@@ -11,9 +11,9 @@ import {width,height} from '../../helperScreen'
 export default class Header extends Component {
     render() {
         return(
-            <View style = {{height:60,width,backgroundColor:'#F44C27',paddingTop:20,flexDirection:'row',paddingLeft:10,paddingRight:10,justifyContent:'space-between'}}>
+        	                    <LinearGradient colors = {['#16222A','#3A6073']} style = {{height:60,width,paddingTop:25,flexDirection:'row',paddingLeft:10,paddingRight:10,justifyContent:'space-between'}}>
                 {this.props.children}
-            </View>
+            </LinearGradient>
         )
     }
 }

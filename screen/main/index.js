@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput,
+import { StyleSheet, Text, View, TextInput,Image,
     Animated,Easing,FlatList,ScrollView
     , KeyboardAvoidingView , TouchableOpacity, TouchableWithoutFeedback,
     DeviceEventEmitter
@@ -9,13 +9,13 @@ import {
 } from 'react-navigation';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import {width,height} from '../../helperScreen'
 import {connect} from 'react-redux';
 import * as action from '../../actions/actionMain'
 
 import axios from 'axios'
+import Icon from 'react-native-vector-icons/Foundation';
 
 import Beacons from 'react-native-beacons-manager';
 
@@ -45,6 +45,23 @@ BackgroundTimer.runBackgroundTimer(() => {
 // BackgroundTimer.stopBackgroundTimer();
 
 class MainScreen extends Component {
+    StartImageRotateFunction () {
+      this.RotateValueHolder.setValue(0)
+      Animated.timing(
+        this.RotateValueHolder,
+        {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.linear
+        }
+      ).start(() => this.StartImageRotateFunction())
+     
+    }
+    StopImageRotateFunction() {
+        Animated.timing(
+        this.RotateValueHolder
+        ).stop();
+    }
     constructor(props) {
         super(props)
         this.animationMain1=new Animated.Value(1)
@@ -58,6 +75,8 @@ class MainScreen extends Component {
             room        :   '',
             rssi        :   '',   
         }
+            this.RotateValueHolder = new Animated.Value(0);
+
     }
     
     subscribe = () => {
@@ -143,6 +162,10 @@ class MainScreen extends Component {
     }
 
     render() {
+        const RotateData = this.RotateValueHolder.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '360deg']
+        })
         this.animatingMain(this.props.animating)
         const animationMain33 = this.animationMain2.interpolate({
                 inputRange: [0, 1],
@@ -162,7 +185,6 @@ class MainScreen extends Component {
             <View style = {{position:'absolute',width,height,backgroundColor:'gray',flexDirection:'row'}}>
                 <View style = {{flex:0.5,justifyContent:'center',alignItems:'center'}}>
                     <View style = {{flex:0.5,alignItems:'center'}}>
-                        
                         <TouchableOpacity onPress = {()=>{
                             this.props.onOrOffAnimating(!this.props.animating)
                             this.props.navigation.goBack(null)}}>
@@ -190,7 +212,7 @@ class MainScreen extends Component {
                         { rotateY: animationMain33},
                     ]
                 }}>
-                <LinearGradient style = {{width,height}} colors = {['#F58163','#945A4A','#372416']}>
+                <LinearGradient style = {{width,height}} colors = {['#00b09b','#96c93d']}>
                     <Header>
                         <TouchableOpacity onPress = {()=>{
                             this.props.onOrOffAnimating(!this.props.animating)
@@ -202,39 +224,55 @@ class MainScreen extends Component {
                         </View>
                         <View style = {{width:30,height:30}}/>
                     </Header>
-                    <View style = {{backgroundColor:'white',flex:1,justifyContent:'flex-end',alignItems:'center'}}>
-                    <View style = {{flex:1,alignItems:'center',top:30,margin:10}}>
-                        <View style = {{marginLeft:10,marginRight:10,borderColor:'green',borderWidth:1,paddingLeft:20,paddingRight:20,flexDirection:'row',width:width-20,justifyContent:'space-between',alignItems:'center',height:40}}>
-                            <Text>Time:</Text>
-                            <Text>{this.state.time}</Text>
+                    <LinearGradient colors = {['#16222A','#3A6073']} style = {{flex:1,justifyContent:'flex-end',alignItems:'center'}}>
+                    <View style = {{flex:1,alignItems:'center', backgroundColor:'rgba(0,0,0,0.1)'}}>
+                        <View style = {{borderColor:'white',borderWidth:1,borderLeftWidth:0,borderRightWidth:0,paddingLeft:20,paddingRight:20,flexDirection:'row',width,justifyContent:'space-between',alignItems:'center',height:70}}>
+                            <View style = {{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <Icon name="clock" size={30} color="white" />
+                                <Text style = {{left:10,color:'white',fontSize:20,fontWeight:'bold'}}>Time:</Text>
+                            </View>
+                            <Text style = {{color:'white',fontSize:20,fontWeight:'bold'}}>{this.state.time}</Text>
                         </View>
-                        <View style = {{marginLeft:10,marginRight:10,borderColor:'green',borderWidth:1,borderTopWidth:0,paddingLeft:20,paddingRight:20,flexDirection:'row',width:width-20,justifyContent:'space-between',alignItems:'center',height:40}}>
-                            <Text>Room:</Text>
-                            <Text>{this.state.room}</Text>
+                        <View style = {{borderColor:'white',borderWidth:1,borderLeftWidth:0,borderRightWidth:0,borderTopWidth:0,paddingLeft:20,paddingRight:20,flexDirection:'row',width,justifyContent:'space-between',alignItems:'center',height:70}}>
+                            <View style = {{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <Icon name="ticket" size={24} color="white" />
+                                <Text style = {{left:10,color:'white',fontSize:20,fontWeight:'bold'}}>Room:</Text>
+                            </View>                           
+                             <Text style = {{color:'white',fontSize:20,fontWeight:'bold'}}>{this.state.room}</Text>
                         </View>
-                        <View style = {{marginLeft:10,marginRight:10,borderColor:'green',borderWidth:1,borderTopWidth:0,paddingLeft:20,paddingRight:20,flexDirection:'row',width:width-20,justifyContent:'space-between',alignItems:'center',height:40}}>
-                            <Text>RSSI:</Text>
-                            <Text>{this.state.rssi}</Text>
+                        <View style = {{borderColor:'white',borderWidth:1,borderLeftWidth:0,borderRightWidth:0,borderTopWidth:0,paddingLeft:20,paddingRight:20,flexDirection:'row',width,justifyContent:'space-between',alignItems:'center',height:70}}>
+                            <View style = {{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                                <Icon name="info" size={30} color="white" />
+                                <Text style = {{left:10,color:'white',fontSize:20,fontWeight:'bold'}}>RSSI:</Text>
+                            </View>
+                                                        <Text style = {{color:'white',fontSize:20,fontWeight:'bold'}}>{this.state.rssi}</Text>
                         </View>
-                    </View>
-                    <View style = {{backgroundColor:'white',width:width,height:50,flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
 
+                        <View
+                        style={{position:'absolute',backgroundColor:'green',width:width/2,height:width/2,top:250,borderRadius:width/4}}
+                                                />
+
+                        <Animated.Image
+                        style={{width:width/2,height:width/2,top:40,transform: [{rotate: RotateData}]}}
+                        source={require('../../images/rada.png')}/>
+                    </View>
+                    <View style = {{width:width,height:50,flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
                         <TouchableOpacity style = {{marginBottom:20}} onPress = {() => {this.sendData("ON")}}>
-                            <View style = {{width:width/2-20,height:40,backgroundColor:'red',
+                            <View style = {{width:width/2-20,height:40,backgroundColor:'#F44C27',
                             borderWidth:1,borderColor:'white',
                             borderRadius:20,justifyContent:'center',alignItems:'center'}}>
                                 <Text style = {{color:'white',fontWeight:'bold'}}>CHECK-IN</Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity style = {{marginBottom:20}} onPress = {() => {this.sendData("OFF")}}>
-                            <View style = {{width:width/2-20,height:40,backgroundColor:'red',
+                            <View style = {{width:width/2-20,height:40,backgroundColor:'#F44C27',
                             borderWidth:1,borderColor:'white',
                             borderRadius:20,justifyContent:'center',alignItems:'center'}}>
                                 <Text style = {{color:'white',fontWeight:'bold'}}>CHECK_OUT</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
-                    </View>
+                    </LinearGradient>
                     </LinearGradient>
                     {this.props.animating==true?(
                         <TouchableWithoutFeedback 
@@ -259,6 +297,7 @@ class MainScreen extends Component {
 		Beacons.startRangingBeaconsInRegion(region);
 		Beacons.startUpdatingLocation();
         Beacons.shouldDropEmptyRanges(true);
+    this.StartImageRotateFunction();
 
         this.regionDidExitEvent = DeviceEventEmitter.addListener(
 			'regionDidExit',

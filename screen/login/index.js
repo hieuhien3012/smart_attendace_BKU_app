@@ -1,11 +1,10 @@
 import React from 'react';
-import { StyleSheet,Keyboard, Text, View, TextInput , KeyboardAvoidingView , TouchableOpacity } from 'react-native';
+import { StyleSheet,Keyboard, Text, View, TextInput , KeyboardAvoidingView , TouchableOpacity ,Image} from 'react-native';
 import {
   StackNavigator,
 } from 'react-navigation';
 // import { EvilIcons,Ionicons,Entypo } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/Foundation';
-
 import LinearGradient from 'react-native-linear-gradient';
 import {width,height} from '../../helperScreen'
 var qs = require('qs');
@@ -24,18 +23,29 @@ export default class LoginScreen extends React.Component {
       const {isFetching} = this.state
       return(
         <View style = {{flex:1}}>
-          <LinearGradient style = {{flex:1}} colors = {['#F58163','#945A4A','#372416']}>
+          <LinearGradient style = {{flex:1}} colors = {['#16222A','#3A6073']}>
           <KeyboardAvoidingView behavior = {'position'} style = {{flex:1,backgroundColor:'rgba(255,255,255,0.1)'}}>
             <View style = {{justifyContent:'space-between',alignItems:'center',flex:1}}>
-              <View style = {{width,height:height/2,alignItems:'center',justifyContent:'center'}}>
-                <Icon name="checkbox" size={width/3} color="white" />
-                <Icon name="torsos" size={width/5} color="white" />
+              <View style = {{width,height:height/2,alignItems:'flex-start',justifyContent:'center'}}>
+              <View style = {{width,alignItems:'center',justifyContent:'center'}}>
+              <Image
+                style={{width:width/3,height:width/3}}
+                source={require('../../images/bklogo.png')}/>
+                <View style = {{width,justifyContent:'flex-start',alignItems:'center',left:-20,top:-30}}>
+                <View>
+                <Text style = {{color:'white',fontSize:40,fontWeight:'900',fontStyle:'italic'}}>{'\n'}Smart</Text> 
+                <Text style = {{paddingLeft:30,color:'white',fontSize:35,fontWeight:'300',fontStyle:'italic'}}>Attendance</Text> 
+                </View>
+                <Text style = {{paddingLeft:130,color:'white',fontSize:30,fontWeight:'900',fontStyle:'italic'}}>System</Text>     
+                </View>
+
+                </View>        
               </View>
               
               <View style = {{alignItems:'center',height:height/2,justifyContent:'flex-end'}}>
                 <View style = {{marginBottom:10,flexDirection:'row',width:width-40,height:50,borderRadius:25,
                 paddingLeft:20,
-                backgroundColor:'rgba(255,255,255,0.1)',alignItems:'center'}}>
+                backgroundColor:'rgba(255,255,255,0.2)',alignItems:'center'}}>
                   <Icon name="torso" size={30} color="rgba(255,255,255,0.5)" />
                   <TextInput 
                   onChangeText = {(text)=>this.setState({username:text})}                                    
@@ -46,7 +56,7 @@ export default class LoginScreen extends React.Component {
   
                 <View style = {{marginBottom:10,flexDirection:'row',width:width-40,height:50,borderRadius:25,
                 paddingLeft:20,
-                backgroundColor:'rgba(255,255,255,0.1)',alignItems:'center'}}>
+                backgroundColor:'rgba(255,255,255,0.2)',alignItems:'center'}}>
                   <Icon name="unlock" size={30} color="rgba(255,255,255,0.5)" />
                   <TextInput 
                   secureTextEntry = {true}                                        
@@ -69,7 +79,6 @@ export default class LoginScreen extends React.Component {
                           if (response.data.status == 'OK') {
                             this.props.navigation.navigate('Main',{student_ID:this.state.username});   
                             this.setState({isFetching:false})                            
-                              alert("Login Success")
                           } else {
                             this.setState({isFetching:false})                                                        
                               alert("Your Username or Password incorrect")
