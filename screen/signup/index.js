@@ -24,7 +24,7 @@ export default class SignupScreen extends React.Component {
       return(
         <View style = {{flex:1}}>
             <LinearGradient style = {{flex:1}} colors = {['#F58163','#945A4A','#372416']}>
-            <KeyboardAvoidingView behavior = {'position'} style = {{flex:1,backgroundColor:'rgba(255,255,255,0.1)'}}>
+            <View behavior = {'position'} style = {{flex:1,backgroundColor:'rgba(255,255,255,0.1)'}}>
               <View style = {{justifyContent:'space-between',alignItems:'center',flex:1}}>
                 <View style = {{width,height:height/3,alignItems:'center',justifyContent:'center'}}>
                   <Text style = {{fontSize:20,fontWeight:'bold',color:'white'}}>CREATE ACCOUNT</Text>
@@ -113,7 +113,7 @@ export default class SignupScreen extends React.Component {
                   </View>
                 </View>
               </View>
-              </KeyboardAvoidingView>
+              </View>
             </LinearGradient>
             {Indicator(isFetching)}
           </View>
